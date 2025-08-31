@@ -1,0 +1,149 @@
+name: Generate Cognitive Project Template
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Target repository (owner/repo)'
+        required: true
+      project_board:
+        description: 'Create project board? (yes/no)'
+        required: false
+        default: 'no'
+
+jobs:
+  generate-cognitive-project-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip install PyGithub
+
+      - name: Generate Issues for Cognitive Project Template
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.event.inputs.repo }}
+        run: |
+          cat > create_issues.py << 'PYTHON_SCRIPT'
+          from github import Github
+          import os
+
+          # Meta-issue template definition
+          phase_issues = [
+              {
+                  "title": "🧬 Phase 1: Cognitive Primitives & Foundational Hypergraph Encoding",
+                  "body": """**Objective:**  
+          Establish atomic vocabulary and bidirectional translation between agentic kernel ML primitives and AtomSpace hypergraph patterns.
+
+          **Subtasks:**
+          - [ ] 1.1 Scheme Cognitive Grammar Microservices
+          - [ ] 1.2 Tensor Fragment Architecture
+          - [ ] 1.3 Verification & Visualization
+
+          **Tensor signature:** `[modality, depth, context, salience, autonomy_index]`
+                          """,
+                  "labels": ["phase-1", "cognitive-synergy", "hypergraph", "enhancement"]
+              },
+              {
+                  "title": "🧠 Phase 2: ECAN Attention Allocation & Resource Kernel Construction",
+                  "body": """**Objective:**  
+          Infuse dynamic, ECAN-style economic attention allocation and activation spreading.
+
+          **Subtasks:**
+          - [ ] 2.1 ECAN Kernel & Scheduler
+          - [ ] 2.2 Dynamic Mesh Integration
+          - [ ] 2.3 Real-World Verification
+
+          **Tensor signature:** `[tasks, attention, priority, resources]`
+                          """,
+                  "labels": ["phase-2", "cognitive-synergy", "ecan", "resource-allocation", "enhancement"]
+              },
+              {
+                  "title": "⚡ Phase 3: Neural-Symbolic Synthesis via Custom ggml Kernels",
+                  "body": """**Objective:**  
+          Engineer custom ggml kernels for seamless neural-symbolic computation and inference.
+
+          **Subtasks:**
+          - [ ] 3.1 Kernel Customization
+          - [ ] 3.2 Tensor Benchmarking
+          - [ ] 3.3 End-to-End Verification
+
+          **Tensor signature:** `[atoms, confidence, features]`
+                          """,
+                  "labels": ["phase-3", "cognitive-synergy", "ggml", "kernels", "enhancement"]
+              },
+              {
+                  "title": "🌐 Phase 4: Distributed Cognitive Mesh API & Embodiment Layer",
+                  "body": """**Objective:**  
+          Expose the network via REST/WebSocket APIs and bind to Unity3D, ROS, and web agents for embodied cognition.
+
+          **Subtasks:**
+          - [ ] 4.1 API & Endpoint Engineering
+          - [ ] 4.2 Embodiment Bindings
+          - [ ] 4.3 Integration Verification
+
+          **Tensor signature:** `[agents, sensors, effectors, state]`
+                          """,
+                  "labels": ["phase-4", "cognitive-synergy", "api", "embodiment", "enhancement"]
+              },
+              {
+                  "title": "🔄 Phase 5: Recursive Meta-Cognition & Evolutionary Optimization",
+                  "body": """**Objective:**  
+          Enable the system to observe, analyze, and recursively improve itself using evolutionary algorithms.
+
+          **Subtasks:**
+          - [ ] 5.1 Meta-Cognitive Pathways
+          - [ ] 5.2 Adaptive Optimization
+          - [ ] 5.3 Recursive Verification
+
+          **Tensor signature:** `[rules, mutability, fitness, introspect]`
+                          """,
+                  "labels": ["phase-5", "cognitive-synergy", "meta-cognition", "evolution", "enhancement"]
+              },
+              {
+                  "title": "📚 Phase 6: Rigorous Testing, Documentation, and Cognitive Unification",
+                  "body": """**Objective:**  
+          Achieve maximal rigor, transparency, and recursive documentation—approaching cognitive unity.
+
+          **Subtasks:**
+          - [ ] 6.1 Deep Testing Protocols
+          - [ ] 6.2 Recursive Documentation
+          - [ ] 6.3 Cognitive Unification
+
+          **Tensor signature:** `[functions, tests, docs, synthesis]`
+                          """,
+                  "labels": ["phase-6", "cognitive-synergy", "testing", "documentation", "unification", "enhancement"]
+              }
+          ]
+
+          # Authenticate and get repo
+          g = Github(os.environ['GH_TOKEN'])
+          repo = g.get_repo(os.environ['REPO'])
+
+          # Create issues
+          for phase in phase_issues:
+              repo.create_issue(
+                  title=phase["title"],
+                  body=phase["body"],
+                  labels=phase["labels"]
+              )
+          print("✨ Cognitive project template issues generated with breathtaking excellence! ✨")
+          PYTHON_SCRIPT
+          
+          python3 create_issues.py
+
+      - name: (Optional) Create Project Board (Experimental)
+        if: ${{ github.event.inputs.project_board == 'yes' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.event.inputs.repo }}
+        run: |
+          echo "Project board creation is experimental—refer to GitHub API docs for ProjectV2 automation."
