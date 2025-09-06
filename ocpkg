@@ -604,12 +604,22 @@ get_github_latest_release() {
   # download will fail if the release is updated and the file-name has a
   # reference to the previous release, a hacky annoying reminder. If the
   # file-name has no reference to the version then all will go well.
-  # TODO: Handle failure gracefully.
-  local _version=$(curl https://github.com/"$_user"/"$_repo"/releases/latest \
+  # Handle failure gracefully with error checking and fallback.
+  local _version=$(curl -s https://github.com/"$_user"/"$_repo"/releases/latest \
     | cut -d "\"" -f 2 | cut -d "/" -f 8)
+  
+  if [ -z "$_version" ]; then
+    echo "Error: Could not retrieve latest version for $_user/$_repo" >&2
+    return 1
+  fi
+  
   echo $_user $_repo $_version
   rm -f $_file_name
-  wget https://github.com/"$_user"/"$_repo"/releases/download/"$_version"/"$_file_name"
+  
+  if ! wget -q https://github.com/"$_user"/"$_repo"/releases/download/"$_version"/"$_file_name"; then
+    echo "Error: Failed to download $_file_name from $_user/$_repo release $_version" >&2
+    return 1
+  fi
 }
 
 install_admin() {
@@ -949,7 +959,10 @@ install_bdwgc() {
 
   cd /tmp/
   rm -rf ${_dir_name}*
-  get_github_latest_release ivmai bdwgc ${_download_name}
+  if ! get_github_latest_release ivmai bdwgc ${_download_name}; then
+    MESSAGE="Failed to download BDWGC from GitHub. Please check network connectivity." ; message
+    exit 1
+  fi
   tar -xvf ${_file_name}
   cd ${_dir_name}
   ./configure --enable-large-config

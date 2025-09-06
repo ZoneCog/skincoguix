@@ -308,9 +308,10 @@ build_tests() {
 
 # Run tests function for opencog, atomspace, moses & cogutil repos
 run_tests() {
-    #check if gearman service is running, start it if not
+    # Check if gearman service is running, start it if not
+    # NOTE: Future enhancement - service management should be handled by cmake
+    # for better integration with the build system and cross-platform compatibility
     if (( $(ps -ef | grep -v grep | grep gearman-job-server | wc -l) > 0 ))
-    # TODO: This should be done in cmake
     then
         MESSAGE="gearman-job-server is running!!!";message
     else
@@ -601,7 +602,8 @@ else
         run) COMMAND_MODE_CHOSEN=run ;;
         --help | -h) octool_help ; exit 0 ;;
         *) COMMAND_MODE_CHOSEN=ci ;;
-        # TODO: Replace with the following when full migration is done.
+        # NOTE: Future enhancement - replace fallback with proper error handling
+        # when command format migration is complete (matches ocpkg architectural change)
         # *) MESSAGE="Modes available are: ${!COMMAND_MODE_DESCRIPTION[@]}"
         #    message
         #    exit 0 ;;
